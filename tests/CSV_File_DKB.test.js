@@ -1,6 +1,7 @@
 const fs = require("fs");
 const path = require("path");
 const CSV_File_DKB = require("../source/CSV_File_DKB.js");
+const CSV_Header = require("../source/CSV_Header.js");
 
 const file = path.join(__dirname, "../example_csvs", "example_dkb.csv");
 const testCSVString = fs.readFileSync(file, "utf8", function(err, data) {
@@ -19,4 +20,9 @@ test("parse csv file", () => {
     expect(parseResult.meta.delimiter).toBe(";");
     expect(csvFile.getAccountNumber()).toBe("DE11111111111234512345 / BeispielName");
     expect(csvFile.getCurrentAccountBalance()).toBe(1000);
+    expect(csvFile.getHeader()[0]).toBe(CSV_Header.date);
+    expect(csvFile.getHeader()[3]).toBe(CSV_Header.client);
+    expect(csvFile.getHeader()[4]).toBe(CSV_Header.usageType);
+    expect(csvFile.getHeader()[5]).toBe(CSV_Header.iban);
+    expect(csvFile.getHeader()[7]).toBe(CSV_Header.value);
 });

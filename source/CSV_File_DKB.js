@@ -1,48 +1,19 @@
 const Papa = require("../dependencies/papaparse.min.js");
+const CSV_Header = require("./CSV_Header.js");
+const CSV_File = require("./CSV_File.js");
 
-class CSV_File_DKB
+class CSV_File_DKB extends CSV_File
 {
-    constructor(data){
-        this._papaConfig = {
-            delimiter: "",	// auto-detect
-            newline: "",	// auto-detect
-            quoteChar: '"',
-            escapeChar: '"',
-            header: true,
-            transformHeader: undefined,
-            dynamicTyping: true,
-            preview: 0,
-            encoding: "",
-            worker: false,
-            comments: false,
-            step: undefined,
-            complete: undefined,
-            error: undefined,
-            download: false,
-            downloadRequestHeaders: undefined,
-            downloadRequestBody: undefined,
-            skipEmptyLines: true,
-            chunk: undefined,
-            chunkSize: undefined,
-            fastMode: undefined,
-            beforeFirstChunk: undefined,
-            withCredentials: undefined,
-            transform: undefined,
-            delimitersToGuess: [',', '\t', '|', ';', Papa.RECORD_SEP, Papa.UNIT_SEP]
-        }
+    constructor(data)
+    {
+        super(data);
         this.parse(data);
     }
 
-    parse(data)
+    spliceAccountInfo(lines)
     {
-        // break the textblock into an array of lines
-        var lines = data.split('\n');
-        this.parseAccountInfo(lines.splice(0,6));
-        var contentData = lines.join('\n');
-
-        this._parseResult = Papa.parse(contentData, this._papaConfig);
+        return lines.splice(0,6)
     }
-
 
     parseAccountInfo(infoLines)
     {
@@ -52,24 +23,14 @@ class CSV_File_DKB
         this._accountBalance = this.convertCurrencyStringToNumber(balanceString)
     }
 
-    convertCurrencyStringToNumber(currencyString)
+    renameHeader(headerLine)
     {
-        return Number(currencyString.replace(/[^0-9.-]+/g,""));
-    }
-
-    getParseResult()
-    {
-        return this._parseResult;
-    }
-
-    getCurrentAccountBalance()
-    {
-        return  this._accountBalance
-    }
-
-    getAccountNumber()
-    {
-        return  this._accountNumber
+        headerLine = headerLine.replace("Buchungstag", CSV_Header.date)
+        headerLine = headerLine.replace("Kontonummer", CSV_Header.iban)
+        headerLine = headerLine.replace("Verwendungszweck", CSV_Header.usageType)
+        headerLine = headerLine.replace(new RegExp("Auftraggeber / Beg.nstigter"), CSV_Header.client)
+        headerLine = headerLine.replace("Betrag (EUR)", CSV_Header.value)
+        return headerLine;
     }
 }
 
