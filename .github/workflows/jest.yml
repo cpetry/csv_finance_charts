@@ -1,0 +1,33 @@
+name: Jest
+2on: push
+3jobs:
+4  test:
+5    runs-on: ubuntu-latest
+6    steps:
+7      - uses: actions/checkout@v2
+8      - name: Setup Node.js
+9        uses: actions/setup-node@v1
+10        with:
+11          node-version: "12"
+12
+13      # Speed up subsequent runs with caching
+14      - name: Cache node modules
+15        uses: actions/cache@v2
+16        env:
+17          cache-name: cache-node-modules
+18        with:
+19          # npm cache files are stored in `~/.npm` on Linux/macOS
+20          path: ~/.npm
+21          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+22          restore-keys: |
+23            ${{ runner.os }}-build-${{ env.cache-name }}-
+24            ${{ runner.os }}-build-
+25            ${{ runner.os }}-
+26
+27      # Install required deps for action
+28      - name: Install Dependencies
+29        run: npm install
+30
+31      # Finally, run our tests
+32      - name: Run the tests
+33        run: npm test
