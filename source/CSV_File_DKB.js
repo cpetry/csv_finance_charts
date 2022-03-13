@@ -17,7 +17,6 @@ class CSV_File_DKB extends CSV_File
 
     parseAccountInfo(infoLines)
     {
-        console.log(infoLines[0])
         this._accountNumber = infoLines[0].split(';')[1]
         let balanceString = infoLines[4].split(';')[1]
         this._accountBalance = this.convertCurrencyStringToNumber(balanceString)
