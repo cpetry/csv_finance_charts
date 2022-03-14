@@ -1,13 +1,13 @@
 const fs = require("fs");
 const path = require("path");
-const CFG_File = require("../source/CFG_File.js");
+import { CFG_File } from "./source/CFG_File.js";
 
 const file = path.join(__dirname, "../", "config.cfg");
 const testCFGString = fs.readFileSync(file, "utf8", function(err, data) {
   return data;
 });
 
-test(testCFGString, () => {
+test("load cfg files", () => {
     let cfgFile = new CFG_File(testCFGString);
     let csvFileInfos = cfgFile.getCSVFileInfos();
     expect(csvFileInfos[0].name).toBe("DKB_giro");
@@ -16,7 +16,7 @@ test(testCFGString, () => {
     expect(csvFileInfos[1].path).toBe("/example_csvs/example_consors.csv");
 });
 
-test(testCFGString, () => {
+test("load cfg categories", () => {
     let cfgFile = new CFG_File(testCFGString);
     let categories = cfgFile.getCategories();
     expect(categories[0].key).toBe("Overhead");

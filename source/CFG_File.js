@@ -15,10 +15,7 @@ class CFG_File
             this._csv_files.push({name: csv[0], path: csv[1]});
         }
 
-        Object.entries(jsonData.categories).forEach(([key, value]) => 
-        {
-            this._categories.push({ key: key, values: value});
-        })
+        this._categories = jsonData.categories
     }
 
     getCSVFileInfos()
@@ -31,5 +28,3 @@ class CFG_File
         return this._categories;
     }
 }
-
-module.exports = CFG_File;

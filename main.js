@@ -11,7 +11,7 @@ const createWindow = () => {
     width: 800,
     height: 600,
     webPreferences: {
-      preload: path.join(__dirname, 'source/preload.js')
+      preload: path.join(__dirname, './source/preload.js')
     }
   })
 
@@ -44,9 +44,9 @@ const loadConfigFile = (mainWindow) => {
         }
   
         // Change how to handle the file content
-        var jsonData = JSON.parse(data);
         console.log("Loaded cfg successfully");
         mainWindow.webContents.send('config-loaded', data);
+        var jsonData = JSON.parse(data);
         for (var i in jsonData.csvFiles)
         {
           var csv = jsonData.csvFiles[i];

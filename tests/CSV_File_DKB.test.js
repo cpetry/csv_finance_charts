@@ -26,37 +26,3 @@ test("parse csv file", () => {
     expect(csvFile.getHeader()[5]).toBe(CSV_Header.iban);
     expect(csvFile.getHeader()[7]).toBe(CSV_Header.value);
 });
-
-test("categorize csv content", () => {
-  let csvFile = new CSV_File_DKB(testCSVString);
-  let categories = {
-    "Overhead": ["Evil landlord", "Insurance"],
-    "Orderings": ["Amazon", "Paypal"],
-    "Gas": ["Aral", "Esso", "Shell", "Total", "Jet", "OMV", "ELO", "SUPOL"],
-    "Income": ["Some Company"]
-  }
-  let categorizedContent = csvFile.categorizeContent(categories);
-  //console.log("categories found: " + Object.keys(categorizedContent))
-  expect(csvFile.getParseResult().data.length).toBe(162);
-  expect(categorizedContent["Overhead"].length).toBe(24);
-  expect(categorizedContent["Orderings"].length).toBe(43);
-  expect(categorizedContent["Gas"].length).toBe(11);
-  expect(categorizedContent["Income"].length).toBe(12);
-  expect(categorizedContent["undefined"].length).toBe(72);
-});
-
-test("calculate sum of categorized csv content", () => {
-  let csvFile = new CSV_File_DKB(testCSVString);
-  let categories = {
-    "Overhead": ["Evil landlord", "Insurance"],
-    "Orderings": ["Amazon", "Paypal"],
-    "Gas": ["Aral", "Esso", "Shell", "Total", "Jet", "OMV", "ELO", "SUPOL"],
-    "Income": ["Some Company"]
-  }
-  let categorizedSums = csvFile.getCategorizedGroupedByMonth(categories);
-  expect(categorizedSums["Overhead"]["03.2017"].sum).toBe(-899.98);
-  expect(categorizedSums["Overhead"]["04.2017"].sum).toBe(-899.98);
-  expect(categorizedSums["Orderings"]["04.2017"].sum).toBe(-95.14);
-  expect(categorizedSums["Gas"]["04.2017"].sum).toBe(-47.13);
-  expect(categorizedSums["Income"]["04.2017"].sum).toBe(2122);
-});

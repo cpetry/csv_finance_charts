@@ -1,13 +1,3 @@
-const Papa = require("../dependencies/papaparse.min.js");
-
-//https://gist.github.com/mikaello/06a76bca33e5d79cdd80c162d7774e9c
-const groupBy = keys => array =>
-  array.reduce((objectsByKeyValue, obj) => {
-    const value = keys.map(key => obj[key]).join('-');
-    objectsByKeyValue[value] = (objectsByKeyValue[value] || []).concat(obj);
-    return objectsByKeyValue;
-  }, {});
-
 class CSV_File 
 {
     constructor(data)
@@ -51,71 +41,17 @@ class CSV_File
         var contentData = lines.join('\n');
 
         this._parseResult = Papa.parse(contentData, this._papaConfig);
+
+        this._parseResult.data.forEach(entry => {
+            entry.value = this.convertCurrencyStringToNumber(entry.value)
+        })
     }
 
-    categorizeContent(categories)
+    convertCurrencyStringToNumber(currencyString)
     {
-        this._categorizedContent = {}
-
-        this._parseResult.data.forEach(entry => 
-        {
-            let category = this.findCategoryForClient(entry.client.toLowerCase(), categories);
-            if (!(category in this._categorizedContent))
-                this._categorizedContent[category] = new Array();
-            this._categorizedContent[category].push(entry);
-        });
-
-        return this._categorizedContent;
-    }
-
-    getCategorizedGroupedByMonth(categories)
-    {
-        this.categorizeContent(categories)
-        this._categorizedSums = {}
-        const groupByDate = groupBy(['date']);
-        for (const [category, entries] of Object.entries(this._categorizedContent))
-        {
-            let filteredEntries = entries.map(entry => { return {date: this.stringToMonthYearString(entry.date), value: this.convertCurrencyStringToNumber(entry.value) }})
-            let groupedEntries = groupByDate(filteredEntries)
-            this._categorizedSums[category] = this.createSumsForGroups(groupedEntries)
-            
-        }
-        return this._categorizedSums
-    }
-
-    createSumsForGroups(groupedEntries)
-    {
-        const groupDict = {}
-        for (const [date, entries] of Object.entries(groupedEntries))
-        {
-            groupDict[date] = {} 
-            groupDict[date].values = entries
-            let sum = 0
-            entries.forEach(entry => {
-                sum += entry.value ?? 0
-            })
-            groupDict[date].sum = sum
-        }
-        return groupDict
-    }
-
-    stringToMonthYearString(dateString)
-    {
-        const regEx = /(\d{2})\.(\d{2})\.(\d{4})/;
-        const [full, day, month, year] = regEx.exec(dateString);
-        const monthYearString = month + "." + year
-        return monthYearString;
-    }
-
-    findCategoryForClient(client, categories)
-    {
-        for (const [category, entries] of Object.entries(categories))
-        {
-            let found = Array.from(entries).some((entry) => client.indexOf(entry.toLowerCase()) !== -1);
-            if (found)
-                return category;
-        }
-        return;
+        currencyString = currencyString.replace(",", ".")
+        currencyString = currencyString.replace(/[^0-9\.,-]+/g, "")
+        return Number(currencyString);
     }
 
     // to override in specific class
@@ -141,13 +77,6 @@ class CSV_File
         return Object.keys(firstEntry)
     }
 
-    convertCurrencyStringToNumber(currencyString)
-    {
-        currencyString = currencyString.replace(",", ".")
-        currencyString = currencyString.replace(/[^0-9\.,-]+/g, "")
-        return Number(currencyString);
-    }
-
     getParseResult()
     {
         return this._parseResult;
@@ -163,5 +92,3 @@ class CSV_File
         return  this._accountNumber
     }
 }
-
-module.exports = CSV_File;

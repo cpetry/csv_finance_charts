@@ -1,7 +1,3 @@
-const Papa = require("../dependencies/papaparse.min.js");
-const CSV_Header = require("./CSV_Header.js");
-const CSV_File = require("./CSV_File.js");
-
 class CSV_File_DKB extends CSV_File
 {
     constructor(data)
@@ -32,5 +28,3 @@ class CSV_File_DKB extends CSV_File
         return headerLine;
     }
 }
-
-module.exports = CSV_File_DKB;

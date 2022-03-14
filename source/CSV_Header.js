@@ -11,5 +11,3 @@ class CSV_Header
     static transfer = 'transfer'
     static type = 'type'
 }
-
-module.exports = CSV_Header;

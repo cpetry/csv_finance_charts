@@ -3,7 +3,6 @@
 const { contextBridge, ipcRenderer } = require('electron')
 
 const exposedAPI = {
-  // `(customData: string) => void` is just the typing here
   onConfigLoaded: (callback) => {
     ipcRenderer.on('config-loaded', (event, data) => callback(data));
   },
