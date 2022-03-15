@@ -1,12 +1,12 @@
 class CSV_File 
 {
-    constructor(data)
+    constructor()
     {
         this._papaConfig = {
             delimiter: "",	// auto-detect
             newline: "",	// auto-detect
             quoteChar: '"',
-            escapeChar: '"',
+            escapeChar: '',
             header: true,
             transformHeader: undefined,
             dynamicTyping: false,
@@ -37,6 +37,7 @@ class CSV_File
         var lines = data.split('\n');
         let accountInfoLines = this.spliceAccountInfo(lines);
         this.parseAccountInfo(accountInfoLines);
+        lines = lines.filter(n => n)
         lines[0] = this.renameHeader(lines[0]);
         var contentData = lines.join('\n');
 

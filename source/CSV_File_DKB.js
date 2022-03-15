@@ -8,7 +8,7 @@ class CSV_File_DKB extends CSV_File
 {
     constructor(data)
     {
-        super(data);
+        super();
         this.parse(data);
     }
 

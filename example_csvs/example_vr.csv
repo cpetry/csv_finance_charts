@@ -1,0 +1,19 @@
+"VR Bank Irgendwo eG"
+
+"Umsatzanzeige"
+
+"BLZ:";"1234596";;"Datum:";"13.01.2012"
+"Konto:";"153732";;"Uhrzeit:";"13:25:23"
+"Abfrage von:";"Someone";;"Kontoinhaber:";"Someone"
+
+"Zeitraum:";"Alle Ums�tze";"von:";;"bis:";
+"Betrag in EUR:";;"von:";" ";"bis:";" "
+"Sortiert nach:";"Buchungstag";"absteigend"
+
+"Buchungstag";"Valuta";"Auftraggeber/Zahlungsempf�nger";"Empf�nger/Zahlungspflichtiger";"Konto-Nr.";"IBAN";"BLZ";"BIC";"Vorgang/Verwendungszweck";"Kundenreferenz";"W�hrung";"Umsatz";" "
+"01.01.2024";"01.01.2024";"EDEKA";"Someone";;"DE3526127737";;"HEZWZ§&6236";"EDEKA";;"EUR";"-26,00";"S"
+"03.01.2012";"03.01.2012";"ROSSMANN VIELEN DANK";"Someone";;"DE3262372";;"GHEWWEZ436227";"Nothing interesting";;"EUR";"-246,00";"S"
+"03.01.2012";"03.01.2012";"AMAZON PAYMENTS EUROPE S.C.A.";"Someone";;"DE34528483";;"ZEWBWEHG626";"Some text";;"EUR";"-426,00";"S"
+
+"04.02.2012";;;;;;;;;"Anfangssaldo";"EUR";"132,40";"H"
+"04.02.2012";;;;;;;;;"Endsaldo";"EUR";"45,53";"H"

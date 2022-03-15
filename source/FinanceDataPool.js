@@ -86,7 +86,7 @@ class FinanceDataPool
             dateEntry.date = date
             let sum = 0
             entries.forEach(entry => {
-                sum += entry.value ?? 0
+                sum += entry.value === undefined ? 0 : entry.value
             })
             dateEntry.sum = sum
             dateEntry.values = entries
