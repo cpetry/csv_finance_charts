@@ -28,3 +28,6 @@ class CFG_File
         return this._categories;
     }
 }
+
+if (typeof module !== 'undefined')
+    module.exports = CFG_File;

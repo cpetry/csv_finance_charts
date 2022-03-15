@@ -1,3 +1,9 @@
+if (typeof require !== 'undefined'){
+    CSV_File = require("../source/CSV_File.js");
+    Papa = require("../dependencies/papaparse.min.js");
+    CSV_Header = require("./CSV_Header.js");
+}
+
 class CSV_File_DKB extends CSV_File
 {
     constructor(data)
@@ -28,3 +34,6 @@ class CSV_File_DKB extends CSV_File
         return headerLine;
     }
 }
+
+if (typeof module !== 'undefined')
+    module.exports = CSV_File_DKB;

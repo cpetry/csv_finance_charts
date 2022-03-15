@@ -11,3 +11,6 @@ class CSV_Header
     static transfer = 'transfer'
     static type = 'type'
 }
+
+if (typeof module !== 'undefined')
+    module.exports = CSV_Header;

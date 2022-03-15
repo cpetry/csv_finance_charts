@@ -86,3 +86,6 @@ class FinanceDataPool
         return;
     }
 }
+
+if (typeof module !== 'undefined')
+    module.exports = FinanceDataPool;

@@ -1,6 +1,6 @@
 const fs = require("fs");
 const path = require("path");
-import CSV_File_DKB from '../source/CSV_File_DKB.js'
+const CSV_File_DKB = require('../source/CSV_File_DKB.js');
 const CSV_Header = require("../source/CSV_Header.js");
 const FinanceDataPool = require("../source/FinanceDataPool.js");
 

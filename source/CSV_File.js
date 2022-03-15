@@ -92,3 +92,6 @@ class CSV_File
         return  this._accountNumber
     }
 }
+
+if (typeof module !== 'undefined')
+    module.exports = CSV_File;
