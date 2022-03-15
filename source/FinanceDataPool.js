@@ -6,6 +6,12 @@ const groupBy = keys => array =>
     return objectsByKeyValue;
   }, {});
 
+const ValueSign = Object.freeze({
+    ALL: 1,
+    POSITIVE : 2,
+    NEGATIVE : 3
+});
+
 class FinanceDataPool 
 {
     constructor(){
@@ -16,22 +22,44 @@ class FinanceDataPool
         this._parseResult = this._parseResult.concat(csv_file.getParseResult().data);
     }
 
-    getCategorizedGroupedByMonth(categories)
+    getCategorizedGroupedByMonth(categories, sign = ValueSign.ALL)
     {
         let categorizedContent = this.categorizeContent(categories)
-        this._categorizedSums = []
+        let categorizedSums = []
         const groupByDate = groupBy(['date']);
         for (const [category, entries] of Object.entries(categorizedContent))
         {
             var categorizedEntry = {}
-            let filteredEntries = entries.map(entry => { return {date: this.stringToMonthYearString(entry.date), value: entry.value }})
-            let groupedEntries = groupByDate(filteredEntries)
+            let filteredEntries = entries.filter((entry) => this.filterOnSign(entry, sign));
+            let condensedEntries = filteredEntries.map(entry => this.condenseEntry(entry, sign, categories));
+            let groupedEntries = groupByDate(condensedEntries)
             categorizedEntry.label = category
             categorizedEntry.data = this.createDateSumsForGroups(groupedEntries)
-            this._categorizedSums.push(categorizedEntry)
+            categorizedEntry.backgroundColor = this.getRandomColor(this.getHashcode(category))
+            categorizedSums.push(categorizedEntry)
             
         }
-        return this._categorizedSums
+        return categorizedSums
+    }
+    
+    filterOnSign(entry, sign) {
+        if (sign == ValueSign.ALL)
+            return true;
+        else if(sign == ValueSign.POSITIVE)
+            return entry.value > 0
+        else if(sign == ValueSign.NEGATIVE)
+            return entry.value < 0
+    }
+
+    condenseEntry(entry, sign, categories){
+        let date = this.stringToMonthYearString(entry.date);
+        let value = entry.value;
+        if (sign == ValueSign.NEGATIVE)
+            value = Math.abs(entry.value)
+
+        // TODO: get converted client names
+        //let found = Array.from(entries).some((entry) => client.indexOf(entry.toLowerCase()) !== -1);
+        return {date: date, value: value, client: entry.client }
     }
 
     categorizeContent(categories)
@@ -66,6 +94,23 @@ class FinanceDataPool
         }
         return groupDict
     }
+
+    getRandomColor(number){
+        const hue = number * 137.508; // use golden angle approximation
+        return `hsl(${hue},85%,85%)`;
+    }
+    
+    getHashcode(str, seed = 0) {
+        let h1 = 0xdeadbeef ^ seed, h2 = 0x41c6ce57 ^ seed;
+        for (let i = 0, ch; i < str.length; i++) {
+            ch = str.charCodeAt(i);
+            h1 = Math.imul(h1 ^ ch, 2654435761);
+            h2 = Math.imul(h2 ^ ch, 1597334677);
+        }
+        h1 = Math.imul(h1 ^ (h1>>>16), 2246822507) ^ Math.imul(h2 ^ (h2>>>13), 3266489909);
+        h2 = Math.imul(h2 ^ (h2>>>16), 2246822507) ^ Math.imul(h1 ^ (h1>>>13), 3266489909);
+        return 4294967296 * (2097151 & h2) + (h1>>>0);
+    };
 
     stringToMonthYearString(dateString)
     {
