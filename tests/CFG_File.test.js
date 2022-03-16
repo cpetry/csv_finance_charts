@@ -2,7 +2,7 @@ const fs = require("fs");
 const path = require("path");
 const CFG_File = require("../source/CFG_File.js");
 
-const file = path.join(__dirname, "../", "testConfig.cfg");
+const file = path.join(__dirname, "../", "testconfig.cfg");
 const testCFGString = fs.readFileSync(file, "utf8", function(err, data) {
   return data;
 });

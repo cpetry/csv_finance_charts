@@ -37,7 +37,7 @@ class FinanceDataPool
         for (const [category, entries] of Object.entries(this._categorizedContent))
         {
             var categorizedEntry = {}
-            let filteredEntries = entries.filter((entry) => this.filterOnSign(entry, sign));
+            let filteredEntries = entries.filter((entry) => filterOnSign(entry, sign));
             let condensedEntries = filteredEntries.map(entry => this.condenseEntry(entry, sign, clientNames));
             let groupedEntries = groupByDate(condensedEntries)
             categorizedEntry.label = category
@@ -61,18 +61,8 @@ class FinanceDataPool
                 dates.push(date)
         })
 
-        dates = dates.sort()
-        console.log(dates)
+        dates = dates.sort(compareDateStrings)
         return dates
-    }
-    
-    filterOnSign(entry, sign) {
-        if (sign == ValueSign.ALL)
-            return true;
-        else if(sign == ValueSign.POSITIVE)
-            return entry.value > 0
-        else if(sign == ValueSign.NEGATIVE)
-            return entry.value < 0
     }
 
     condenseEntry(entry, sign, clientNames){
@@ -121,6 +111,8 @@ class FinanceDataPool
             groupList.push(dateEntry)
         }
         
+        groupList = groupList.sort(compareGroupByDate)
+
         return groupList
     }
 
@@ -160,6 +152,38 @@ class FinanceDataPool
         return;
     }
 }
+
+
+      
+    
+const filterOnSign = (entry, sign) => {
+    if (sign == ValueSign.ALL)
+        return true;
+    else if(sign == ValueSign.POSITIVE)
+        return entry.value > 0
+    else if(sign == ValueSign.NEGATIVE)
+        return entry.value < 0
+}
+
+const compareGroupByDate = (a, b) => {
+    return compareDateStrings(a.date,b.date)
+}
+
+const compareDateStrings = (a, b) => {
+    let aYear = a.substring(3)
+    let bYear = b.substring(3)
+    if (aYear > bYear) {
+      return 1;
+    }
+    else if (aYear < bYear) {
+      return -1;
+    }
+    else{
+        let aMonth = a.substring(0,2);
+        let bMonth = b.substring(0,2);
+        return aYear > bYear ? 1 : -1
+    }
+  }
 
 if (typeof module !== 'undefined')
     module.exports = FinanceDataPool;

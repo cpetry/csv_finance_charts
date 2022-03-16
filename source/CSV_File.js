@@ -57,6 +57,7 @@ class CSV_File
 
     convertCurrencyStringToNumber(currencyString)
     {
+        currencyString = currencyString.replace(".", "")
         currencyString = currencyString.replace(",", ".")
         currencyString = currencyString.replace(/[^0-9\.,-]+/g, "")
         return Number(currencyString);

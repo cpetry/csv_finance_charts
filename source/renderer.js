@@ -61,8 +61,8 @@ const CreateChart = () => {
         options: {
             responsive: true,
             interaction: {
-                intersect: true,
-                mode: 'index',
+                //intersect: false,
+                mode: 'x'
             },
             scales: {
                 x: {
@@ -79,14 +79,13 @@ const CreateChart = () => {
             plugins: {
                 tooltip: {
                   callbacks: {
-                    title: toolTipSum,
-                    label: toolTipContent
+                    afterTitle: toolTipSum
+                    //label: toolTipContent
                   }
                 }
             }
         }
     };
-    console.log(config)
     _chart = new Chart(ctx, config);
 }
 
