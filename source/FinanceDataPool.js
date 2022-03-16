@@ -22,16 +22,23 @@ class FinanceDataPool
         this._parseResult = this._parseResult.concat(csv_file.getParseResult().data);
     }
 
-    getCategorizedGroupedByMonth(categories, sign = ValueSign.ALL)
+    getCategorizedGroupedByMonth(categories, sign = ValueSign.ALL, recreate = false)
     {
-        let categorizedContent = this.categorizeContent(categories)
+        if (this._categorizedContent == undefined || recreate)
+            this._categorizedContent = this.categorizeContent(categories)
+        
+
+        let clientNames = []
+        for (const [category, entries] of Object.entries(categories))
+            clientNames = clientNames.concat(entries);
+
         let categorizedSums = []
         const groupByDate = groupBy(['date']);
-        for (const [category, entries] of Object.entries(categorizedContent))
+        for (const [category, entries] of Object.entries(this._categorizedContent))
         {
             var categorizedEntry = {}
             let filteredEntries = entries.filter((entry) => this.filterOnSign(entry, sign));
-            let condensedEntries = filteredEntries.map(entry => this.condenseEntry(entry, sign, categories));
+            let condensedEntries = filteredEntries.map(entry => this.condenseEntry(entry, sign, clientNames));
             let groupedEntries = groupByDate(condensedEntries)
             categorizedEntry.label = category
             categorizedEntry.data = this.createDateSumsForGroups(groupedEntries)
@@ -40,6 +47,23 @@ class FinanceDataPool
             
         }
         return categorizedSums
+    }
+
+    getDateLabels()
+    {
+        if (this._categorizedContent == undefined)
+            this._categorizedContent = this.categorizeContent(categories)
+
+        let dates = []
+        this._parseResult.forEach(entry => {
+            let date = this.stringToMonthYearString(entry.date);
+            if (!dates.includes(date))
+                dates.push(date)
+        })
+
+        dates = dates.sort()
+        console.log(dates)
+        return dates
     }
     
     filterOnSign(entry, sign) {
@@ -51,15 +75,19 @@ class FinanceDataPool
             return entry.value < 0
     }
 
-    condenseEntry(entry, sign, categories){
+    condenseEntry(entry, sign, clientNames){
         let date = this.stringToMonthYearString(entry.date);
         let value = entry.value;
         if (sign == ValueSign.NEGATIVE)
             value = Math.abs(entry.value)
 
-        // TODO: get converted client names
-        //let found = Array.from(entries).some((entry) => client.indexOf(entry.toLowerCase()) !== -1);
-        return {date: date, value: value, client: entry.client }
+        let foundName = clientNames.find((name) => this.contains(entry.client, name));
+        let clientName = foundName === undefined ? entry.client : foundName;
+        return {date: date, value: value, client: clientName }
+    }
+
+    contains(a, b){
+        return a.toLowerCase().indexOf(b.toLowerCase()) !== -1;
     }
 
     categorizeContent(categories)
@@ -79,7 +107,7 @@ class FinanceDataPool
 
     createDateSumsForGroups(groupedEntries)
     {
-        const groupDict = []
+        let groupList = []
         for (const [date, entries] of Object.entries(groupedEntries))
         {
             let dateEntry = {} 
@@ -90,9 +118,10 @@ class FinanceDataPool
             })
             dateEntry.sum = sum
             dateEntry.values = entries
-            groupDict.push(dateEntry)
+            groupList.push(dateEntry)
         }
-        return groupDict
+        
+        return groupList
     }
 
     getRandomColor(number){
@@ -124,7 +153,7 @@ class FinanceDataPool
     {
         for (const [category, entries] of Object.entries(categories))
         {
-            let found = Array.from(entries).some((entry) => client.indexOf(entry.toLowerCase()) !== -1);
+            let found = Array.from(entries).some((entry) => this.contains(client, entry));
             if (found)
                 return category;
         }

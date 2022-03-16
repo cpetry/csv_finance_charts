@@ -3,7 +3,10 @@ var cfgFile
 window.electron.onConfigLoaded((data) => {
     console.log("Config data received")
     cfgFile = new CFG_File(data);
+
+    CreateChart();
 });
+
 
 const toolTipSum = (tooltipItems) => {
     let sum = 0;    
@@ -24,36 +27,46 @@ const toolTipContent = (tooltipItems) => {
     sum = Math.round((sum + Number.EPSILON) * 100) / 100
     let details = []
     details.push(label + ':')
-    dataOfCategory.values.forEach((entry) => details.push(entry.client + ': ' + entry.value + '\r'))
+
+    // sort detail info descending by value
+    dataList = dataOfCategory.values
+    dataList = dataList.sort(function(a, b) {
+        return -(a.value - b.value);
+    });
+    dataList.forEach((entry) => details.push(entry.client + ': ' + entry.value + '\r'))
 
     return details;
 }
 
+
+_financeDataPool = new FinanceDataPool();
+
 window.electron.onCSVLoaded((data) => {
     console.log("CSV data received")
     let csvFile = new CSV_File_DKB(data);
-    let financeDataPool = new FinanceDataPool();
-    financeDataPool.Add(csvFile);
+    _financeDataPool.Add(csvFile);
     
     let categories = cfgFile.getCategories()
-    let categorizedSums = financeDataPool.getCategorizedGroupedByMonth(categories, ValueSign.NEGATIVE);
+    let categorizedSums = _financeDataPool.getCategorizedGroupedByMonth(categories, ValueSign.NEGATIVE, recreate = true);
+    let labels = _financeDataPool.getDateLabels()
+    UpdateChart(categorizedSums, labels)
+});
 
-    
 
+var _chart
+
+const CreateChart = () => {
     let config = {
         type: 'bar',
-        data: { datasets: 
-            categorizedSums
-        },
         options: {
             responsive: true,
             interaction: {
-                intersect: false,
+                intersect: true,
                 mode: 'index',
             },
             scales: {
                 x: {
-                    stacked: true,
+                    stacked: true
                 },
                 y: {
                     stacked: true
@@ -66,7 +79,7 @@ window.electron.onCSVLoaded((data) => {
             plugins: {
                 tooltip: {
                   callbacks: {
-                    afterTitle: toolTipSum,
+                    title: toolTipSum,
                     label: toolTipContent
                   }
                 }
@@ -74,7 +87,11 @@ window.electron.onCSVLoaded((data) => {
         }
     };
     console.log(config)
-    let myChart = new Chart(ctx,
-      config
-    );
-});
+    _chart = new Chart(ctx, config);
+}
+
+const UpdateChart = (categorizedSums, labels) => {
+    _chart.options.scales.x.labels = labels
+    _chart.data.datasets = categorizedSums
+    _chart.update();
+}

@@ -21,6 +21,7 @@ test("categorize csv content", () => {
     }
     let categorizedContent = financeDataPool.categorizeContent(categories);
     //console.log("categories found: " + Object.keys(categorizedContent))
+    //console.log(csvFile.getParseResult().data)
     expect(csvFile.getParseResult().data.length).toBe(162);
     expect(categorizedContent["Overhead"].length).toBe(24);
     expect(categorizedContent["Orderings"].length).toBe(43);

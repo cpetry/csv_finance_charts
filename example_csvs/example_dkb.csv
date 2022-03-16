@@ -4,12 +4,13 @@ Von:;30.12.2016;;;;;;;;;
 Bis:;30.12.2017;;;;;;;;;
 Kontostand vom 30.12.2017:; 1000 EUR;;;;;;;;;
 ;;;;;;;;;;
-Buchungstag;Wertstellung;Buchungstext;Auftraggeber / Begünstigter;Verwendungszweck;Kontonummer;BLZ;Betrag (EUR);Gläubiger-ID;Mandatsreferenz;Kundenreferenz
+Buchungstag;Wertstellung;Buchungstext;Auftraggeber / Begï¿½nstigter;Verwendungszweck;Kontonummer;BLZ;Betrag (EUR);Glï¿½ubiger-ID;Mandatsreferenz;Kundenreferenz
 28.12.2017;28.12.2017;Kartenzahlung/-abrechnung;Wifes favorite shoeshop ;some text;Some account number;SOMEBLZ;-281;;;
 27.12.2017;27.12.2017;Kartenzahlung/-abrechnung;ALDI GMBH + CO. KG;some text;Some account number;SOMEBLZ;-52,74;;;
 21.12.2017;21.12.2017;Lastschrift;SHELL;some text;Some account number;SOMEBLZ;-47,13;;;
 19.12.2017;19.12.2017;Kartenzahlung/-abrechnung;REWE SAGT DANKE;some text;Some account number;SOMEBLZ;-24,08;;;
 19.12.2017;19.12.2017;Lastschrift;AMAZON EU S.A R.L., NIEDERLASSUNG DEUTSCHLAND;some text;Some account number;SOMEBLZ;-7,99;;;
+30.12.2020;;;;Tagessaldo;;;1.234,56;
 18.12.2017;18.12.2017;Lastschrift;ROSSMANN VIELEN DANK;some text;Some account number;SOMEBLZ;-6,23;;;
 18.12.2017;18.12.2017;Kartenzahlung/-abrechnung;EDEKA;some text;Some account number;SOMEBLZ;-19,82;;;
 15.12.2017;15.12.2017;Kartenzahlung/-abrechnung;ALDI GMBH + CO. KG;some text;Some account number;SOMEBLZ;-24,39;;;
@@ -20,6 +21,7 @@ Buchungstag;Wertstellung;Buchungstext;Auftraggeber / Begünstigter;Verwendungszwe
 03.12.2017;03.12.2017;Lastschrift;Insurance;some text;Some account number;SOMEBLZ;-99,99;;;
 03.12.2017;03.12.2017;Lastschrift;Evil landlord;some text;Some account number;SOMEBLZ;-799,99;;;
 01.12.2017;01.12.2017;Gehalt;Some Company;Gehalt;Some account number;SOMEBLZ;2222;;;
+30.12.2020;;;;Tagessaldo;;;1.123,45;
 21.11.2017;21.11.2017;Lastschrift;OMV DEUTSCHLAND GMBH;some text;Some account number;SOMEBLZ;-19,82;;;
 19.11.2017;19.11.2017;Kartenzahlung/-abrechnung;REWE SAGT DANKE;some text;Some account number;SOMEBLZ;-6,23;;;
 19.11.2017;19.11.2017;Lastschrift;AMAZON EU S.A R.L., NIEDERLASSUNG DEUTSCHLAND;some text;Some account number;SOMEBLZ;-7,99;;;

@@ -7,14 +7,12 @@ class CFG_File
     parse(data)
     {
         var jsonData = JSON.parse(data);
-        this._csv_files = [];
-        this._categories = [];
-        for (var i in jsonData.csvFiles)
-        {
-            var csv = jsonData.csvFiles[i];
-            this._csv_files.push({name: csv[0], path: csv[1]});
-        }
 
+        this._csv_files = [];
+        for (const [key, value] of Object.entries(jsonData.csvFiles))
+            this._csv_files.push({name: key, path: value});
+
+        this._categories = [];
         this._categories = jsonData.categories
     }
 

@@ -9,7 +9,6 @@ class CSV_File_VR extends CSV_File
     constructor(data)
     {
         super();
-        data = data.replace(/\"/g, '');
         this.parse(data);
     }
 

@@ -12,6 +12,11 @@ class CSV_File_DKB extends CSV_File
         this.parse(data);
     }
 
+    filterData(data)
+    {
+        return data.filter((entry) => !(entry.usage.toLowerCase().indexOf("tagessaldo") !== -1))
+    }
+
     spliceAccountInfo(lines)
     {
         return lines.splice(0,6)

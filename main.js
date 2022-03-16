@@ -56,16 +56,15 @@ const loadConfigFile = (mainWindow) => {
     });
 }
 
-const loadCSVFile = (mainWindow, fileName) => {
-  filepath = path.join(__dirname, fileName)
-    fs.readFile(filepath, 'utf-8', (err, data) => {
+const loadCSVFile = (mainWindow, filePath) => {
+    fs.readFile(filePath, 'utf-8', (err, data) => {
         if(err){
             alert("An error ocurred reading the file :" + err.message);
             return;
         }
   
         // Change how to handle the file content
-        console.log("Loaded csv file " + fileName + " successfully");
+        console.log("Loaded csv file " + filePath + " successfully");
         mainWindow.webContents.send('csv-loaded', data);
     });
 }

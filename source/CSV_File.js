@@ -33,16 +33,23 @@ class CSV_File
 
     parse(data)
     {
+        // remove all "
+        data = data.replace(/\"/g, '');
+
         // break the textblock into an array of lines
         var lines = data.split('\n');
         let accountInfoLines = this.spliceAccountInfo(lines);
         this.parseAccountInfo(accountInfoLines);
+
+        // filter empty lines
         lines = lines.filter(n => n)
+
         lines[0] = this.renameHeader(lines[0]);
         var contentData = lines.join('\n');
 
         this._parseResult = Papa.parse(contentData, this._papaConfig);
 
+        this._parseResult.data = this.filterData(this._parseResult.data)
         this._parseResult.data.forEach(entry => {
             entry.value = this.convertCurrencyStringToNumber(entry.value)
         })
@@ -59,6 +66,11 @@ class CSV_File
     spliceAccountInfo(lines)
     {
         throw new TypeError("Must override method");
+    }
+
+    filterData(data)
+    {
+        return data; // optionally override method
     }
 
     // to override in specific class

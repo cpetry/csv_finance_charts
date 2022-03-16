@@ -2,7 +2,7 @@ const fs = require("fs");
 const path = require("path");
 const CFG_File = require("../source/CFG_File.js");
 
-const file = path.join(__dirname, "../", "config.cfg");
+const file = path.join(__dirname, "../", "testConfig.cfg");
 const testCFGString = fs.readFileSync(file, "utf8", function(err, data) {
   return data;
 });
@@ -10,6 +10,7 @@ const testCFGString = fs.readFileSync(file, "utf8", function(err, data) {
 test("load cfg files", () => {
     let cfgFile = new CFG_File(testCFGString);
     let csvFileInfos = cfgFile.getCSVFileInfos();
+    //console.log(csvFileInfos)
     expect(csvFileInfos[0].name).toBe("DKB_giro");
     expect(csvFileInfos[1].name).toBe("Consors_giro");
     expect(csvFileInfos[0].path).toBe("/example_csvs/example_dkb.csv");
