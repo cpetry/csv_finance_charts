@@ -8,7 +8,8 @@ const exposedAPI = {
   },
   onCSVLoaded: (callback) => {
     ipcRenderer.on('csv-loaded', (event, data) => callback(data));
-  }
+  },
+  onReload: () => ipcRenderer.send('reload')
 };
 
 contextBridge.exposeInMainWorld("electron", exposedAPI);

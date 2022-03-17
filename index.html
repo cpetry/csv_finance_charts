@@ -1,10 +1,14 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <link href="dependencies/dist/css/tabulator.min.css" rel="stylesheet">
+    <link href="style.css" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta charset="UTF-8">
     <!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'">
     <meta http-equiv="X-Content-Security-Policy" content="default-src 'self'; script-src 'self'">
+    
 
     <script src="dependencies/chart.min.js"></script>
     <script src="dependencies/papaparse.min.js"></script>
@@ -14,18 +18,31 @@
     <script src="source/CSV_File_DKB.js"></script>
     <script src="source/FinanceDataPool.js"></script>
 
-    <title>Hello World!</title>
+    <title>Finances</title>
   </head>
   
   <body>
-    <h1>Hello World!</h1>
-    We are using Node.js <span id="node-version"></span>,
-    Chromium <span id="chrome-version"></span>,
-    and Electron <span id="electron-version"></span>.
+    <div class="row">
+      <div class="column left">
+        <h2>Chart</h2>
+        <p>Some text..</p>
+        <canvas id="myChart" width="400" height="400"></canvas>
+        <h2>Table</h2>
+        <div id="detailsTable"></div>
+        <p>Some text..</p>
+      </div>
+      <div class="column right">
+        <h2>Options</h2>
+        <button type="button" id="buttonReload">Reload</button>
+        <br/>
+        <select name="hover" id="selectHover">
+          <option value="single">single</option>
+          <option value="bar" selected>bar</option>
+        </select>
+      </div>
+    </div> 
 
-    <canvas id="myChart" width="400" height="400"></canvas>
-
-    
+    <script type="text/javascript" src="dependencies/dist/js/tabulator.min.js"></script>
     <script src="source/renderer.js"></script>
   </body>
 </html>

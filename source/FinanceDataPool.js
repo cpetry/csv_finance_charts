@@ -73,7 +73,7 @@ class FinanceDataPool
 
         let foundName = clientNames.find((name) => this.contains(entry.client, name));
         let clientName = foundName === undefined ? entry.client : foundName;
-        return {date: date, value: value, client: clientName }
+        return {date: date, value: value, client: clientName, usage: entry.usage }
     }
 
     contains(a, b){

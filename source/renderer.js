@@ -5,6 +5,18 @@ window.electron.onConfigLoaded((data) => {
     cfgFile = new CFG_File(data);
 
     CreateChart();
+    CreateTable();
+});
+
+const buttonReload = document.getElementById('buttonReload')
+buttonReload.addEventListener('click', () => {
+    window.electron.onReload()
+});
+
+const selectHover = document.getElementById('selectHover')
+selectHover.addEventListener('change', () => {
+    console.log(selectHover.value)
+    ChangeHoverOption(selectHover.value)
 });
 
 
@@ -76,6 +88,13 @@ const CreateChart = () => {
                 xAxisKey: 'date',
                 yAxisKey: 'sum'
             },
+            onClick(e) {
+                const activePoints = _chart.getElementsAtEventForMode(e, 'x', {intersect: true}, true)
+                const [{ index }] = activePoints;
+                console.log(_chart.data.datasets[0])
+                const clickedData = _chart.data.datasets[0].data[index]
+                UpdateTable(clickedData)
+            },
             plugins: {
                 tooltip: {
                   callbacks: {
@@ -89,8 +108,40 @@ const CreateChart = () => {
     _chart = new Chart(ctx, config);
 }
 
+const ChangeHoverOption = (option) => {
+    let mode = ""
+    switch(option){
+        case "single":
+            _chart.options.interaction.intersect = true
+            _chart.options.interaction.mode = "nearest"
+            break;
+        case "bar":
+        default:
+            _chart.options.interaction.intersect = false
+            _chart.options.interaction.mode = "x"
+            break;
+    }
+    _chart.update();
+}
+
 const UpdateChart = (categorizedSums, labels) => {
     _chart.options.scales.x.labels = labels
     _chart.data.datasets = categorizedSums
     _chart.update();
+}
+
+var _table
+const CreateTable = () => {
+    _table = new Tabulator("#detailsTable", {
+        height:205, // set height of table (in CSS or here), this enables the Virtual DOM and improves render speed dramatically (can be any valid css height value)
+        layout:"fitColumns", //fit columns to width of table (optional)
+        autoColumns:true
+   });
+}
+
+const UpdateTable = (barData) => {
+    console.log(barData)
+    const data = barData.values;
+    console.log(data)
+    _table.setData(data) //assign data to table
 }

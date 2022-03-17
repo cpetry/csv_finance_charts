@@ -1,7 +1,7 @@
 // main.js
 
 // Modules to control application life and create native browser window
-const { app, BrowserWindow, Menu } = require('electron')
+const { app, BrowserWindow, Menu, ipcMain } = require('electron')
 const path = require('path');
 const fs = require('fs'); // Load the File System to execute our common tasks (CRUD)
 
@@ -13,6 +13,10 @@ const createWindow = () => {
     webPreferences: {
       preload: path.join(__dirname, './source/preload.js')
     }
+  })
+
+  ipcMain.on('reload', (event) => {
+      loadConfigFile(mainWindow)
   })
 
   var menu = Menu.buildFromTemplate([
@@ -33,6 +37,7 @@ const createWindow = () => {
 
   // Open the DevTools.
   // mainWindow.webContents.openDevTools()
+  return mainWindow;
 }
 
 const loadConfigFile = (mainWindow) => {
@@ -73,7 +78,7 @@ const loadCSVFile = (mainWindow, filePath) => {
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.whenReady().then(() => {
-  createWindow()
+  let mainWindow = createWindow()
 
   app.on('activate', () => {
     // On macOS it's common to re-create a window in the app when the
