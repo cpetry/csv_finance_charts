@@ -67,14 +67,20 @@ window.electron.onCSVLoaded((data) => {
 
 var _chart
 
+var lastClickTime = performance.now()
+
 const CreateChart = () => {
     let config = {
         type: 'bar',
         options: {
+            maintainAspectRatio: false,
             responsive: true,
             interaction: {
                 //intersect: false,
                 mode: 'x'
+            },
+            animation: {
+                duration: 800,
             },
             scales: {
                 x: {
@@ -88,12 +94,11 @@ const CreateChart = () => {
                 xAxisKey: 'date',
                 yAxisKey: 'sum'
             },
-            onClick(e) {
-                const activePoints = _chart.getElementsAtEventForMode(e, 'x', {intersect: true}, true)
-                const [{ index }] = activePoints;
-                console.log(_chart.data.datasets[0])
-                const clickedData = _chart.data.datasets[0].data[index]
-                UpdateTable(clickedData)
+            
+            events: ['mousemove', 'mouseout', 'click', 'touchstart', 'touchmove'],
+
+            onClick(event) {
+                chartClickHandler(event)
             },
             plugins: {
                 tooltip: {
@@ -101,11 +106,81 @@ const CreateChart = () => {
                     afterTitle: toolTipSum
                     //label: toolTipContent
                   }
+                },
+                legend: {
+                    onClick: newLegendClickHandler
                 }
             }
         }
     };
     _chart = new Chart(ctx, config);
+}
+
+const defaultLegendClickHandler = Chart.defaults.plugins.legend.onClick;
+
+const newLegendClickHandler = function (event, legendItem, legend) {
+    let now = performance.now()
+    let doubleClicked = false
+    if (now - lastClickTime < 200)
+        doubleClicked = true
+    lastClickTime = performance.now()
+    
+    const clickedIndex = legendItem.datasetIndex;
+
+    if (!doubleClicked) {
+        defaultLegendClickHandler(event, legendItem, legend);
+    } else {
+        const ci = legend.chart;
+
+        var allOthersAreInvisible = true
+        for (var i=0; i < legend.legendItems.length; i++)
+        {
+            if (i != clickedIndex && ci.isDatasetVisible(i)){
+                allOthersAreInvisible = false
+                break;
+            }
+        }
+
+        for (var i=0; i < legend.legendItems.length; i++){
+            if (allOthersAreInvisible){
+                ci.show(i);
+                legendItem.hidden = false;
+            } else {
+                ci.hide(i);
+                legendItem.hidden = true;
+            }
+        }
+
+        ci.show(clickedIndex);
+        legendItem.hidden = false;
+    }
+}
+
+const chartClickHandler = function(event){
+    let activePoints;
+    if (_chart.options.interaction.mode == 'nearest')
+        activePoints = _chart.getElementsAtEventForMode(event, 'nearest', {intersect: true}, true)
+    else if (_chart.options.interaction.mode == 'x')
+        activePoints = _chart.getElementsAtEventForMode(event, 'x', {intersect: true}, true)
+    if (activePoints == undefined || activePoints.length == 0)
+        return;
+    const [{ index }] = activePoints;
+
+    let tableData = []
+    for(var i=0; i<_chart.data.datasets.length; i++) {
+        let isVisible = _chart.isDatasetVisible(i)
+        if (!isVisible)
+            continue;
+
+        let dataset = _chart.data.datasets[i]
+        let categoryData = dataset.data[index]
+        if (categoryData == undefined)
+            continue
+
+        values = categoryData.values.filter(x => x != undefined)
+        tableData = tableData.concat(values)
+    }
+    UpdateTable(tableData)
 }
 
 const ChangeHoverOption = (option) => {
@@ -133,15 +208,13 @@ const UpdateChart = (categorizedSums, labels) => {
 var _table
 const CreateTable = () => {
     _table = new Tabulator("#detailsTable", {
-        height:205, // set height of table (in CSS or here), this enables the Virtual DOM and improves render speed dramatically (can be any valid css height value)
-        layout:"fitColumns", //fit columns to width of table (optional)
+        minHeight: 10,
+        maxHeight: 500,
+        layout:"fitDataStretch",
         autoColumns:true
    });
 }
 
 const UpdateTable = (barData) => {
-    console.log(barData)
-    const data = barData.values;
-    console.log(data)
-    _table.setData(data) //assign data to table
+    _table.setData(barData) //assign data to table
 }

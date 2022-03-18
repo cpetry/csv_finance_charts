@@ -38,11 +38,11 @@ class FinanceDataPool
         {
             var categorizedEntry = {}
             let filteredEntries = entries.filter((entry) => filterOnSign(entry, sign));
-            let condensedEntries = filteredEntries.map(entry => this.condenseEntry(entry, sign, clientNames));
+            let condensedEntries = filteredEntries.map(entry => this.condenseEntry(entry, sign, category, clientNames));
             let groupedEntries = groupByDate(condensedEntries)
             categorizedEntry.label = category
             categorizedEntry.data = this.createDateSumsForGroups(groupedEntries)
-            categorizedEntry.backgroundColor = this.getRandomColor(this.getHashcode(category))
+            categorizedEntry.backgroundColor = this.getColorFromColorTable(categorizedSums.length)
             categorizedSums.push(categorizedEntry)
             
         }
@@ -65,7 +65,7 @@ class FinanceDataPool
         return dates
     }
 
-    condenseEntry(entry, sign, clientNames){
+    condenseEntry(entry, sign, category, clientNames){
         let date = this.stringToMonthYearString(entry.date);
         let value = entry.value;
         if (sign == ValueSign.NEGATIVE)
@@ -73,7 +73,7 @@ class FinanceDataPool
 
         let foundName = clientNames.find((name) => this.contains(entry.client, name));
         let clientName = foundName === undefined ? entry.client : foundName;
-        return {date: date, value: value, client: clientName, usage: entry.usage }
+        return {date: date, value: value, client: clientName, usage: entry.usage, category: category }
     }
 
     contains(a, b){
@@ -119,6 +119,12 @@ class FinanceDataPool
     getRandomColor(number){
         const hue = number * 137.508; // use golden angle approximation
         return `hsl(${hue},85%,85%)`;
+    }
+
+    // to create color palettes : http://vrl.cs.brown.edu/color // awesome!!!
+    getColorFromColorTable(number){
+        const colorTable = ["#aee39a", "#6c2f66", "#8fec2f", "#e456d8", "#21a708", "#8711ac", "#719d47", "#fc2c44", "#41c9dc", "#8e1023", "#47f0a3", "#1e39ae", "#f2c029", "#3f16f9", "#cfdf34", "#707ae4", "#ed8220", "#116966", "#f6c8de", "#544437", "#dd6e81", "#106003", "#9a7b8d", "#19477d", "#a37e1a"]
+        return colorTable[number % colorTable.length]
     }
     
     getHashcode(str, seed = 0) {

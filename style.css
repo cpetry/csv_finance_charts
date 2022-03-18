@@ -23,3 +23,7 @@
     display: table;
     clear: both;
 }
+
+div #detailsTable {
+    width: 100%
+}
