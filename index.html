@@ -17,6 +17,7 @@
     <script src="source/CSV_File.js"></script>
     <script src="source/CSV_File_DKB.js"></script>
     <script src="source/FinanceDataPool.js"></script>
+    <script src="source/BarChart.js"></script>
 
     <title>Finances</title>
   </head>
@@ -24,6 +25,8 @@
   <body>
     <div class="row">
       <div class="column left">
+        <div class="tab" id="modeTabs">
+        </div>
         <div class="chart-container" style="position: relative; height:40vh; width:80vw">
           <canvas id="myChart" width="400" height="500"></canvas>
         </div>
@@ -39,12 +42,6 @@
         <select name="hover" id="selectHover">
           <option value="single">single</option>
           <option value="bar" selected>bar</option>
-        </select>
-        <select name="filter" id="selectFilter">
-          <option value="expenses">expenses</option>
-          <option value="income" selected>income</option>
-          <option value="all" selected>all</option>
-          <option value="total" selected>total</option>
         </select>
       </div>
     </div> 
