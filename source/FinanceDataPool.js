@@ -9,7 +9,8 @@ const groupBy = keys => array =>
 const ValueSign = Object.freeze({
     ALL: 1,
     POSITIVE : 2,
-    NEGATIVE : 3
+    NEGATIVE : 3,
+    TOTAL : 4
 });
 
 class FinanceDataPool 
@@ -18,19 +19,29 @@ class FinanceDataPool
         this._parseResult = []
     }
 
-    Add(csv_file){
-        this._parseResult = this._parseResult.concat(csv_file.getParseResult().data);
+    Clear(){
+        this._parseResult = []
     }
 
-    getCategorizedGroupedByMonth(categories, sign = ValueSign.ALL, recreate = false)
+    Add(csv_file){
+        this._parseResult = this._parseResult.concat(csv_file.getParseResult().data);
+        this._parseResult = this._parseResult.filter(onlyUnique);
+    }
+
+    getCategorizedGroupedByMonth(categories, sign = ValueSign.ALL, recreate = false, ignoredCategories = [])
     {
         if (this._categorizedContent == undefined || recreate)
-            this._categorizedContent = this.categorizeContent(categories)
+            this._categorizedContent = this.categorizeContent(categories, sign, ignoredCategories)
         
 
         let clientNames = []
-        for (const [category, entries] of Object.entries(categories))
+        let categoryNames = []
+        for (const [category, entries] of Object.entries(categories)){
             clientNames = clientNames.concat(entries);
+            categoryNames.push(category)
+        }
+
+        categoryNames = categoryNames.sort()
 
         let categorizedSums = []
         const groupByDate = groupBy(['date']);
@@ -41,8 +52,11 @@ class FinanceDataPool
             let condensedEntries = filteredEntries.map(entry => this.condenseEntry(entry, sign, category, clientNames));
             let groupedEntries = groupByDate(condensedEntries)
             categorizedEntry.label = category
+            if (sign == ValueSign.TOTAL)
+                categorizedEntry.label = "total"
             categorizedEntry.data = this.createDateSumsForGroups(groupedEntries)
-            categorizedEntry.backgroundColor = this.getColorFromColorTable(categorizedSums.length)
+            var categoryIndex = categoryNames.indexOf(category)
+            categorizedEntry.backgroundColor = this.getColorFromColorTable(categoryIndex)
             categorizedSums.push(categorizedEntry)
             
         }
@@ -70,6 +84,8 @@ class FinanceDataPool
         let value = entry.value;
         if (sign == ValueSign.NEGATIVE)
             value = Math.abs(entry.value)
+        else if (sign == ValueSign.TOTAL)
+            category = "total"
 
         let foundName = clientNames.find((name) => this.contains(entry.client, name));
         let clientName = foundName === undefined ? entry.client : foundName;
@@ -80,13 +96,21 @@ class FinanceDataPool
         return a.toLowerCase().indexOf(b.toLowerCase()) !== -1;
     }
 
-    categorizeContent(categories)
+    categorizeContent(categories, sign, ignoredCategories = [])
     {
         let categorizedContent = {}
 
         this._parseResult.forEach(entry => 
         {
             let category = this.findCategoryForClient(entry.client.toLowerCase(), categories);
+            
+            if (sign == ValueSign.TOTAL)
+            {
+                if (ignoredCategories.includes(category))
+                    return;
+                category = "total"
+            }
+
             if (!(category in categorizedContent))
                 categorizedContent[category] = new Array();
             categorizedContent[category].push(entry);
@@ -100,14 +124,15 @@ class FinanceDataPool
         let groupList = []
         for (const [date, entries] of Object.entries(groupedEntries))
         {
-            let dateEntry = {} 
-            dateEntry.date = date
             let sum = 0
             entries.forEach(entry => {
                 sum += entry.value === undefined ? 0 : entry.value
             })
-            dateEntry.sum = sum
-            dateEntry.values = entries
+            let dateEntry = { 
+                date: date, 
+                sum: sum, 
+                values: entries
+            }
             groupList.push(dateEntry)
         }
         
@@ -123,7 +148,14 @@ class FinanceDataPool
 
     // to create color palettes : http://vrl.cs.brown.edu/color // awesome!!!
     getColorFromColorTable(number){
-        const colorTable = ["#aee39a", "#6c2f66", "#8fec2f", "#e456d8", "#21a708", "#8711ac", "#719d47", "#fc2c44", "#41c9dc", "#8e1023", "#47f0a3", "#1e39ae", "#f2c029", "#3f16f9", "#cfdf34", "#707ae4", "#ed8220", "#116966", "#f6c8de", "#544437", "#dd6e81", "#106003", "#9a7b8d", "#19477d", "#a37e1a"]
+        const colorTable = ["#cefa6e", "#aef375", "#8feb7d",  "#6ee386", "#48da8e", "#00d097", "#00c69e", "#00bca4", "#00b1a9", "#00a6ac", "#009bac", "#008fab", "#0084a8", "#0078a2",
+            "#006d9b",
+            "#006191",
+            "#005687",
+            "#074a7a",
+            "#1f406d",
+            "#28355f"
+            ]
         return colorTable[number % colorTable.length]
     }
     
@@ -160,10 +192,14 @@ class FinanceDataPool
 }
 
 
-      
+    
+
+function onlyUnique(value, index, self) {
+    return self.indexOf(value) === index;
+}  
     
 const filterOnSign = (entry, sign) => {
-    if (sign == ValueSign.ALL)
+    if (sign == ValueSign.ALL || sign == ValueSign.TOTAL)
         return true;
     else if(sign == ValueSign.POSITIVE)
         return entry.value > 0

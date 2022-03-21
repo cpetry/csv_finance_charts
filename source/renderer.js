@@ -1,8 +1,8 @@
 const ctx = document.getElementById('myChart');
-var cfgFile
+var _cfgFile
 window.electron.onConfigLoaded((data) => {
     console.log("Config data received")
-    cfgFile = new CFG_File(data);
+    _cfgFile = new CFG_File(data);
 
     CreateChart();
     CreateTable();
@@ -10,6 +10,10 @@ window.electron.onConfigLoaded((data) => {
 
 const buttonReload = document.getElementById('buttonReload')
 buttonReload.addEventListener('click', () => {
+    if(_chart instanceof Chart)
+        _chart.destroy();
+    if (_financeDataPool !== undefined)
+        _financeDataPool.Clear();
     window.electron.onReload()
 });
 
@@ -17,6 +21,11 @@ const selectHover = document.getElementById('selectHover')
 selectHover.addEventListener('change', () => {
     console.log(selectHover.value)
     ChangeHoverOption(selectHover.value)
+});
+
+const selectFilter = document.getElementById('selectFilter')
+selectFilter.addEventListener('change', () => {
+    UpdateChart();
 });
 
 
@@ -58,10 +67,7 @@ window.electron.onCSVLoaded((data) => {
     let csvFile = new CSV_File_DKB(data);
     _financeDataPool.Add(csvFile);
     
-    let categories = cfgFile.getCategories()
-    let categorizedSums = _financeDataPool.getCategorizedGroupedByMonth(categories, ValueSign.NEGATIVE, recreate = true);
-    let labels = _financeDataPool.getDateLabels()
-    UpdateChart(categorizedSums, labels)
+    UpdateChart();
 });
 
 
@@ -97,8 +103,8 @@ const CreateChart = () => {
             
             events: ['mousemove', 'mouseout', 'click', 'touchstart', 'touchmove'],
 
-            onClick(event) {
-                chartClickHandler(event)
+            onClick(event, clickedElements) {
+                chartClickHandler(event, clickedElements)
             },
             plugins: {
                 tooltip: {
@@ -108,7 +114,11 @@ const CreateChart = () => {
                   }
                 },
                 legend: {
-                    onClick: newLegendClickHandler
+                    onClick: newLegendClickHandler,
+                    labels: {
+                        filter: legendFilter,
+                        sort: legendSorting
+                    }
                 }
             }
         }
@@ -156,16 +166,51 @@ const newLegendClickHandler = function (event, legendItem, legend) {
     }
 }
 
-const chartClickHandler = function(event){
-    let activePoints;
-    if (_chart.options.interaction.mode == 'nearest')
-        activePoints = _chart.getElementsAtEventForMode(event, 'nearest', {intersect: true}, true)
-    else if (_chart.options.interaction.mode == 'x')
-        activePoints = _chart.getElementsAtEventForMode(event, 'x', {intersect: true}, true)
-    if (activePoints == undefined || activePoints.length == 0)
-        return;
-    const [{ index }] = activePoints;
+const legendSorting = function(legendItemA, legendItemB, data){
+    if (legendItemA.text > legendItemB.text)
+        return 1
+    else if (legendItemA.text < legendItemB.text)
+        return -1
+    else
+        return 0;
+}
 
+const legendFilter = function(legendItem, data){
+    var categoryIndex = legendItem.datasetIndex
+    var dataOfCategory = data.datasets[categoryIndex].data
+    return dataOfCategory.length > 0
+}
+
+const chartClickHandler = function(event, clickedElements){
+    if (clickedElements.length === 0) return
+
+    const index = clickedElements[0].index;
+
+    let tableData = []
+    if (_chart.options.interaction.mode == 'x')
+    {
+        let filterDate = _chart.data.datasets[0].data[index].date;
+        if (selectFilter.value == "total")
+            tableData = GetTableDataFromMultipleDatasets(filterDate, onlySums = true)
+        else
+            tableData = GetTableDataFromMultipleDatasets(filterDate, onlySums = false)
+    }
+    else 
+    {
+        const datasetIndex = clickedElements[0].datasetIndex;
+        
+        if (selectFilter.value == "total")
+            tableData = _chart.data.datasets[datasetIndex].data[index]
+        else
+            tableData = _chart.data.datasets[datasetIndex].data[index].values
+    }
+
+
+    UpdateTable(tableData)
+}
+
+const GetTableDataFromMultipleDatasets = (filterDate, onlySums) => 
+{
     let tableData = []
     for(var i=0; i<_chart.data.datasets.length; i++) {
         let isVisible = _chart.isDatasetVisible(i)
@@ -173,14 +218,17 @@ const chartClickHandler = function(event){
             continue;
 
         let dataset = _chart.data.datasets[i]
-        let categoryData = dataset.data[index]
+        let categoryData = dataset.data.find((data) => data.date == filterDate);
         if (categoryData == undefined)
             continue
 
-        values = categoryData.values.filter(x => x != undefined)
+        if (onlySums)
+            values = categoryData
+        else
+            values = categoryData.values.filter(x => x != undefined)
         tableData = tableData.concat(values)
     }
-    UpdateTable(tableData)
+    return tableData
 }
 
 const ChangeHoverOption = (option) => {
@@ -192,14 +240,38 @@ const ChangeHoverOption = (option) => {
             break;
         case "bar":
         default:
-            _chart.options.interaction.intersect = false
+            _chart.options.interaction.intersect = true
             _chart.options.interaction.mode = "x"
             break;
     }
     _chart.update();
 }
 
-const UpdateChart = (categorizedSums, labels) => {
+const UpdateChart = () => {
+    let categories = _cfgFile.getCategories()
+    let valueSign = ValueSign.NEGATIVE;
+    switch(selectFilter.value){
+        case "expenses" : 
+            valueSign = ValueSign.NEGATIVE;
+            break;
+        case "income" : 
+            valueSign = ValueSign.POSITIVE;
+            break;
+        case "all" : 
+            valueSign = ValueSign.ALL;
+            break;
+        case "total" : 
+            valueSign = ValueSign.TOTAL;
+            break;
+    }
+
+    let ignoredCategories = []
+    if (valueSign == ValueSign.TOTAL)
+        ignoredCategories = ["Hausbau"]
+
+    let categorizedSums = _financeDataPool.getCategorizedGroupedByMonth(categories, valueSign, recreate = true, ignoredCategories = ignoredCategories);
+    let labels = _financeDataPool.getDateLabels()
+
     _chart.options.scales.x.labels = labels
     _chart.data.datasets = categorizedSums
     _chart.update();
