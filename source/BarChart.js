@@ -2,7 +2,6 @@ class BarChart
 {
     constructor()
     {
-        this._defaultLegendClickHandler = Chart.defaults.plugins.legend.onClick;
 
         this._lastClickTime = performance.now()
         let config = {
@@ -53,6 +52,7 @@ class BarChart
         };
         this._chartCtx = document.getElementById('myChart');
         this._chart = new Chart(this._chartCtx, config);
+        this._defaultLegendClickHandler = Chart.defaults.plugins.legend.onClick;
     }
 
     AddListenerOnSelection(action)
@@ -194,7 +194,7 @@ class BarChart
         const clickedIndex = legendItem.datasetIndex;
 
         if (!doubleClicked) {
-            this._defaultLegendClickHandler(event, legendItem, legend);
+            Chart.defaults.plugins.legend.onClick(event, legendItem, legend);
         } else {
             const ci = legend.chart;
 
