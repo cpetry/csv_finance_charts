@@ -1,8 +1,7 @@
 class BarChart
 {
-    constructor()
+    constructor(cfgFile)
     {
-
         this._lastClickTime = performance.now()
         let config = {
             type: 'bar',
@@ -53,6 +52,8 @@ class BarChart
         this._chartCtx = document.getElementById('myChart');
         this._chart = new Chart(this._chartCtx, config);
         this._defaultLegendClickHandler = Chart.defaults.plugins.legend.onClick;
+        this._cfgFile = cfgFile;
+        this._excludedCategories = []
     }
 
     AddListenerOnSelection(action)
@@ -63,13 +64,9 @@ class BarChart
     UpdateChart(financeDataPool, valueSign)
     {
         this._valueSign = valueSign;
-        let categories = _cfgFile.getCategories()
+        let categories = this._cfgFile.getCategories()
         
-        let ignoredCategories = []
-        if (valueSign == ValueSign.TOTAL)
-            ignoredCategories = ["Hausbau"]
-
-        let categorizedSums = financeDataPool.getCategorizedGroupedByMonth(categories, valueSign, /*recreate*/ true, ignoredCategories = ignoredCategories);
+        let categorizedSums = financeDataPool.getCategorizedGroupedByMonth(categories, valueSign, /*recreate*/ true, this._excludedCategories);
         let labels = financeDataPool.getDateLabels()
 
         this._chart.options.scales.x.labels = labels
@@ -92,6 +89,14 @@ class BarChart
                 break;
         }
         this._chart.update();
+    }
+
+    SetExcludeCategory(category, shouldExclude)
+    {
+        if (shouldExclude)
+            this._excludedCategories.push(category);
+        else if (this._excludedCategories.includes(category))
+            this._excludedCategories = this._excludedCategories.filter(item => item !== category)
     }
 
     ToolTipSum(tooltipItems)

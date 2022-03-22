@@ -27,11 +27,11 @@
       <div class="column left">
         <div class="tab" id="modeTabs">
         </div>
-        <div class="chart-container" style="position: relative; height:40vh; width:80vw">
+        <div class="chart-container">
           <canvas id="myChart" width="400" height="500"></canvas>
         </div>
         <h2>Table</h2>
-        <div>
+        <div class="table-container">
           <div id="detailsTable"></div>
         </div>
       </div>
@@ -39,10 +39,18 @@
         <h2>Options</h2>
         <button type="button" id="buttonReload">Reload</button>
         <br/>
-        <select name="hover" id="selectHover">
-          <option value="single">single</option>
-          <option value="bar" selected>bar</option>
-        </select>
+        <br/>
+        <!-- Rounded switch -->
+        <h4>Selection</h4>
+        Column
+        <label class="switch">
+          <input type="checkbox" id="toggleHoverType">
+          <span class="slider round"></span>
+        </label>
+        Single
+        <div id="excludeCategoryContainer" hidden>
+          <h4>Exclude category</h4>
+        </div>
       </div>
     </div> 
 

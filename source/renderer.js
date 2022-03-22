@@ -1,4 +1,3 @@
-var _cfgFile
 var _valueSign = ValueSign.NEGATIVE
 var _financeDataPool = new FinanceDataPool();
 var _table
@@ -6,12 +5,14 @@ var _barChart
 
 window.electron.onConfigLoaded((data) => {
     console.log("Config data received")
-    _cfgFile = new CFG_File(data);
+    let cfgFile = new CFG_File(data);
 
     CreateTabs();
-    _barChart = new BarChart();
+    _barChart = new BarChart(cfgFile);
     _barChart.AddListenerOnSelection(function (barData) { UpdateTable(barData)})
     CreateTable();
+    let categories = cfgFile.getCategories()
+    CreateExcludeOptions(categories);
 });
 
 window.electron.onCSVLoaded((data) => {
@@ -30,15 +31,17 @@ buttonReload.addEventListener('click', () => {
     window.electron.onReload()
 });
 
-const selectHover = document.getElementById('selectHover')
-selectHover.addEventListener('change', () => {
+const toggleHoverType = document.getElementById('toggleHoverType')
+toggleHoverType.addEventListener('change', () => {
+    let type = toggleHoverType.checked ? "single" : "bar"
     if (_barChart !== undefined)
-        _barChart.ChangeHoverOption(selectHover.value)
+        _barChart.ChangeHoverOption(type)
 });
 
 const CreateTabs = () => 
 {
     const modeTabs = document.getElementById('modeTabs');
+    modeTabs.innerHTML = '';
     for (const [key, valueSign] of Object.entries(ValueSign))
     {
         let btn = document.createElement("button");
@@ -48,28 +51,73 @@ const CreateTabs = () =>
         btn.innerHTML = key;
         btn.onclick = () => 
         { 
-            
-            // Get all elements with class="tabButtons" and remove the class "active"
-            tabButtons = document.getElementsByClassName("tabButton");
-            for (i = 0; i < tabButtons.length; i++) {
-                tabButtons[i].className = tabButtons[i].className.replace(" active", "");
-            }
-
-            // Show the current tab, and add an "active" class to the button that opened the tab
-            document.getElementById(key).style.display = "block";
-            document.getElementById(key).className += " active";
-            _barChart.UpdateChart(_financeDataPool, valueSign);
+            OnTabClicked(key, valueSign);
         }
         modeTabs.appendChild(btn);
     }
 }
 
+const OnTabClicked = (tabName, valueSign) => 
+{
+    // Get all elements with class="tabButtons" and remove the class "active"
+    tabButtons = document.getElementsByClassName("tabButton");
+    for (i = 0; i < tabButtons.length; i++) {
+        tabButtons[i].className = tabButtons[i].className.replace(" active", "");
+    }
+
+    
+    const container = document.getElementById('excludeCategoryContainer');
+    container.hidden = valueSign != ValueSign.TOTAL;
+
+    // Show the current tab, and add an "active" class to the button that opened the tab
+    document.getElementById(tabName).style.display = "block";
+    document.getElementById(tabName).className += " active";
+    _barChart.UpdateChart(_financeDataPool, valueSign);
+}
+
+const CreateExcludeOptions = (categories) =>
+{
+    const container = document.getElementById('excludeCategoryContainer');
+    container.innerHTML = '';
+
+    for (const [category, entries] of Object.entries(categories))
+    {
+        let lbl = document.createElement("label");
+        var inputCheckbox = document.createElement("input");
+        let span = document.createElement("span");
+        let textspan = document.createElement("span");
+
+        lbl.className = "switch"
+        inputCheckbox.type = "checkbox";
+        inputCheckbox.id = "checkBox" + category
+        inputCheckbox.onchange = () => OnExcludeOptionChanged(category);
+        span.className = "slider round";
+        textspan.innerHTML = category;
+        
+        lbl.appendChild(inputCheckbox)
+        lbl.appendChild(span)
+        lbl.appendChild(textspan)
+
+        container.appendChild(lbl);
+
+
+        container.appendChild(document.createElement("br"));
+        
+    }
+}
+
+const OnExcludeOptionChanged = (category) => 
+{
+    let checkBox = document.getElementById("checkBox" + category)
+    let shouldExclude = checkBox.checked
+    _barChart.SetExcludeCategory(category, shouldExclude)
+    _barChart.UpdateChart(_financeDataPool, _barChart._valueSign);
+}
+
 
 const CreateTable = () => {
     _table = new Tabulator("#detailsTable", {
-        minHeight: 10,
-        maxHeight: 500,
-        layout:"fitDataStretch",
+        height:"100%",
         autoColumns:true
    });
 }
