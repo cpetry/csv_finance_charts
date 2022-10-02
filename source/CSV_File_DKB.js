@@ -25,6 +25,17 @@ class CSV_File_DKB extends CSV_File
     parseAccountInfo(infoLines)
     {
         this._accountNumber = infoLines[0].split(';')[1]
+
+        let balanceDateString = infoLines[4].split(';')[0]
+        balanceDateString = balanceDateString.replace("Kontostand vom ","");
+        balanceDateString = balanceDateString.replace(":","");
+        // "2015-03-25" (The International Standard)
+        var balanceDateStringArray = balanceDateString.split(".");
+        var year = Number(balanceDateStringArray[2]);
+        var month = Number(balanceDateStringArray[1] - 1); // month is 'indexed' -.-
+        var day = Number(balanceDateStringArray[0]);
+        this._accountBalanceDate = new Date(year, month, day)
+
         let balanceString = infoLines[4].split(';')[1]
         this._accountBalance = this.convertCurrencyStringToNumber(balanceString)
     }

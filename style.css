@@ -28,6 +28,13 @@ div #detailsTable {
     width: 100%
 }
 
+div #accountBalance {
+  position: relative;
+  bottom: 30px;
+  float: right;
+  right: 30px;
+}
+
 .chart-container {
   position: relative; 
   height:45vh; 

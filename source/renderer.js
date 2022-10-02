@@ -20,6 +20,8 @@ window.electron.onCSVLoaded((data) => {
     let csvFile = new CSV_File_DKB(data);
     _financeDataPool.Add(csvFile);
     _barChart.UpdateChart(_financeDataPool);
+    
+    document.getElementById("accountBalance").innerHTML = _financeDataPool.getTotalAccountBalance().toFixed(2)
 });
 
 const buttonReload = document.getElementById('buttonReload')
@@ -64,10 +66,15 @@ const OnTabClicked = (tabName, valueSign) =>
     for (i = 0; i < tabButtons.length; i++) {
         tabButtons[i].className = tabButtons[i].className.replace(" active", "");
     }
-
     
     const container = document.getElementById('excludeCategoryContainer');
     container.hidden = valueSign != ValueSign.TOTAL;
+
+    const barChart = document.getElementById('barChart');
+    barChart.style.display = valueSign != ValueSign.ALL ? "block" : "none";
+
+    const lineChart = document.getElementById('lineChart');
+    lineChart.style.display = valueSign == ValueSign.ALL ? "block" : "none";
 
     // Show the current tab, and add an "active" class to the button that opened the tab
     document.getElementById(tabName).style.display = "block";

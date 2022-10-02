@@ -44,7 +44,7 @@ const loadConfigFile = (mainWindow) => {
   filepath = path.join(__dirname, 'config.cfg')
     fs.readFile(filepath, 'utf-8', (err, data) => {
         if(err){
-            alert("An error ocurred reading the file :" + err.message);
+            console.log("An error ocurred reading the file :" + err.message);
             return;
         }
   
@@ -64,7 +64,7 @@ const loadConfigFile = (mainWindow) => {
 const loadCSVFile = (mainWindow, filePath) => {
     fs.readFile(filePath, 'utf-8', (err, data) => {
         if(err){
-            alert("An error ocurred reading the file :" + err.message);
+          console.log("An error ocurred reading the file :" + err.message);
             return;
         }
   

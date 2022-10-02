@@ -26,3 +26,17 @@ test("parse csv file", () => {
     expect(csvFile.getHeader()[5]).toBe(CSV_Header.iban);
     expect(csvFile.getHeader()[7]).toBe(CSV_Header.value);
 });
+
+test("parse csv file account balance", () => {
+  let csvFile = new CSV_File_DKB(testCSVString);
+  let accountBalance = csvFile.getCurrentAccountBalance();
+  expect(accountBalance).toBe(1000);
+});
+
+test("parse csv file account balance date", () => {
+  let csvFile = new CSV_File_DKB(testCSVString);
+  let date = csvFile.getCurrentAccountBalanceDate();
+  expect(date.getDate()).toBe(30);
+  expect(date.getMonth()).toBe(12 - 1); // month is indexed -.-
+  expect(date.getFullYear()).toBe(2017);
+});

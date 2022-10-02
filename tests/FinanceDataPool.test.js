@@ -49,3 +49,20 @@ test("categorize csv content", () => {
     let orderingsData = categorizedSums.find(e => e.label  == "Orderings").data
     expect(orderingsData.find(d => d.date == '04.2017').sum).toBe(-95.14);
   });
+
+  test("getCurrentBalance", () => {
+    let csvFile = new CSV_File_DKB(testCSVString);
+    let financeDataPool = new FinanceDataPool();
+    financeDataPool.Add(csvFile);
+    let accountBalance = financeDataPool.getTotalAccountBalance();
+    expect(accountBalance).toBe(1000);
+  });
+
+  test("createDateSumList", () => {
+    let csvFile = new CSV_File_DKB(testCSVString);
+    let financeDataPool = new FinanceDataPool();
+    financeDataPool.Add(csvFile);
+    let dateSumList = financeDataPool.createDateSumList();
+    expect(dateSumList[0].date).toBe("01.01.2017");
+    expect(dateSumList[0].value).toBe(1922);
+  });

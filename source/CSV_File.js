@@ -29,6 +29,8 @@ class CSV_File
             transform: undefined,
             delimitersToGuess: ['\t', '|', ';', Papa.RECORD_SEP, Papa.UNIT_SEP]
         }
+
+        this._accountBalance = 0
     }
 
     parse(data)
@@ -98,7 +100,12 @@ class CSV_File
 
     getCurrentAccountBalance()
     {
-        return  this._accountBalance
+        return this._accountBalance
+    }
+
+    getCurrentAccountBalanceDate()
+    {
+        return this._accountBalanceDate
     }
 
     getAccountNumber()

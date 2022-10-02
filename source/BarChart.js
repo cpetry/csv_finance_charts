@@ -49,7 +49,7 @@ class BarChart
                 }
             }
         };
-        this._chartCtx = document.getElementById('myChart');
+        this._chartCtx = document.getElementById('barChart');
         this._chart = new Chart(this._chartCtx, config);
         this._defaultLegendClickHandler = Chart.defaults.plugins.legend.onClick;
         this._cfgFile = cfgFile;
